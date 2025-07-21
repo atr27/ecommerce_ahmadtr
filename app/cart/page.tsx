@@ -11,7 +11,7 @@ import { useCartStore } from '@/store/cart'
 import { formatPrice } from '@/lib/utils'
 import { createSupabaseClient } from '@/lib/supabase'
 import { User } from '@supabase/supabase-js'
-import { CartItem } from '@/types'
+import { CartItem } from '@/types/index'
 
 export default function CartPage() {
   const [isLoading, setIsLoading] = useState(true)
