@@ -2,7 +2,6 @@ import { Suspense } from 'react'
 import ProductGrid from '@/components/products/product-grid'
 import ProductFilters from '@/components/products/product-filters'
 import { createSupabaseServerClient } from '@/lib/supabase-server'
-import { Product } from '@/types'
 
 interface SearchParams {
   category?: string
