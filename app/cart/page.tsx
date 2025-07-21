@@ -11,7 +11,7 @@ import { useCartStore } from '@/store/cart'
 import { formatPrice } from '@/lib/utils'
 import { createSupabaseClient } from '@/lib/supabase'
 import { User } from '@supabase/supabase-js'
-import { CartItem } from '@/types/index'
+import { CartItem, CartStore } from '@/types/index'
 
 export default function CartPage() {
   const [isLoading, setIsLoading] = useState(true)
@@ -27,7 +27,15 @@ export default function CartPage() {
     getTotalPrice, 
     getTotalItems,
     isLoading: cartLoading 
-  } = useCartStore()
+  } = useCartStore((state: CartStore) => ({
+    items: state.items as CartItem[],
+    fetchCart: state.fetchCart,
+    updateQuantity: state.updateQuantity,
+    removeItem: state.removeItem,
+    getTotalPrice: state.getTotalPrice,
+    getTotalItems: state.getTotalItems,
+    isLoading: state.isLoading
+  }))
 
   useEffect(() => {
     const checkUser = async () => {
