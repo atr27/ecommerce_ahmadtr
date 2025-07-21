@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { User, Heart, Settings, LogOut, Edit, Trash2, Key } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -403,9 +404,11 @@ export default function AccountPage() {
                     </div>
                   ))}
                   {favorites.length > 4 && (
-                    <Button variant="outline" className="col-span-full">
-                      View All Favorites
-                    </Button>
+                    <Link href="/favorites" className="col-span-full">
+                      <Button variant="outline" className="w-full">
+                        View All Favorites
+                      </Button>
+                    </Link>
                   )}
                 </div>
               )}
