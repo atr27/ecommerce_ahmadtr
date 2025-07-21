@@ -1,67 +1,73 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import Link from 'next/link'
-import { User, Heart, Settings, LogOut, Edit, Trash2, Key } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { createSupabaseClient } from '@/lib/supabase'
-import { formatPrice } from '@/lib/utils'
-
-
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { User, Heart, Settings, LogOut, Edit, Trash2, Key } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { createSupabaseClient } from "@/lib/supabase";
+import { formatPrice } from "@/lib/utils";
 
 interface UserProfile {
-  id: string
-  email: string
+  id: string;
+  email: string;
   user_metadata: {
-    name?: string
-    avatar_url?: string
-  }
+    name?: string;
+    avatar_url?: string;
+  };
 }
 
 export default function AccountPage() {
-  const [user, setUser] = useState<UserProfile | null>(null)
-  const [favorites, setFavorites] = useState<Array<{
-    id: any;
-    products: Array<{
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [favorites, setFavorites] = useState<
+    Array<{
       id: any;
-      name: any;
-      price: any;
-      image_url: any;
-      category: any;
-    }>;
-  }>>([]);
-  const [isLoading, setIsLoading] = useState(true)
-  const [isEditing, setIsEditing] = useState(false)
-  const [name, setName] = useState('')
-  const [newPassword, setNewPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [isUpdating, setIsUpdating] = useState(false)
-  const [isDeleting, setIsDeleting] = useState(false)
-  const [message, setMessage] = useState('')
-  const [messageType, setMessageType] = useState<'success' | 'error'>('success')
-  const router = useRouter()
-  const supabase = createSupabaseClient()
+      products: Array<{
+        id: any;
+        name: any;
+        price: any;
+        image_url: any;
+        category: any;
+      }>;
+    }>
+  >([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
+  const [name, setName] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [message, setMessage] = useState("");
+  const [messageType, setMessageType] = useState<"success" | "error">(
+    "success"
+  );
+  const router = useRouter();
+  const supabase = createSupabaseClient();
 
   useEffect(() => {
     const fetchUserData = async () => {
-      const { data: { user }, error } = await supabase.auth.getUser()
-      
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
+
       if (error || !user) {
-        router.push('/auth/login')
-        return
+        router.push("/auth/login");
+        return;
       }
 
-      setUser(user as UserProfile)
-      setName(user.user_metadata?.name || '')
+      setUser(user as UserProfile);
+      setName(user.user_metadata?.name || "");
 
       // Fetch user favorites
       const { data: favoritesData } = await supabase
-        .from('favorites')
-        .select(`
+        .from("favorites")
+        .select(
+          `
           id,
           products (
             id,
@@ -70,130 +76,132 @@ export default function AccountPage() {
             image_url,
             category
           )
-        `)
-        .eq('user_id', user.id)
+        `
+        )
+        .eq("user_id", user.id);
 
       if (favoritesData) {
-        setFavorites(favoritesData)
+        setFavorites(favoritesData);
       }
 
-      setIsLoading(false)
-    }
+      setIsLoading(false);
+    };
 
-    fetchUserData()
-  }, [supabase, router])
+    fetchUserData();
+  }, [supabase, router]);
 
   const handleUpdateProfile = async () => {
-    if (!user) return
+    if (!user) return;
 
     const { error } = await supabase.auth.updateUser({
-      data: { name }
-    })
+      data: { name },
+    });
 
     if (error) {
-      alert('Failed to update profile')
+      alert("Failed to update profile");
     } else {
-      setIsEditing(false)
+      setIsEditing(false);
       // Refresh user data
-      const { data: { user: updatedUser } } = await supabase.auth.getUser()
+      const {
+        data: { user: updatedUser },
+      } = await supabase.auth.getUser();
       if (updatedUser) {
-        setUser(updatedUser as UserProfile)
+        setUser(updatedUser as UserProfile);
       }
     }
-  }
+  };
 
   const handleChangePassword = async () => {
     if (!newPassword || !confirmPassword) {
-      setMessage('Please fill in both password fields')
-      setMessageType('error')
-      return
+      setMessage("Please fill in both password fields");
+      setMessageType("error");
+      return;
     }
 
     if (newPassword !== confirmPassword) {
-      setMessage('Passwords do not match')
-      setMessageType('error')
-      return
+      setMessage("Passwords do not match");
+      setMessageType("error");
+      return;
     }
 
     if (newPassword.length < 6) {
-      setMessage('Password must be at least 6 characters long')
-      setMessageType('error')
-      return
+      setMessage("Password must be at least 6 characters long");
+      setMessageType("error");
+      return;
     }
 
-    setIsUpdating(true)
-    setMessage('')
+    setIsUpdating(true);
+    setMessage("");
 
     try {
       const { error } = await supabase.auth.updateUser({
-        password: newPassword
-      })
+        password: newPassword,
+      });
 
       if (error) {
-        setMessage(error.message)
-        setMessageType('error')
+        setMessage(error.message);
+        setMessageType("error");
       } else {
-        setMessage('Password updated successfully')
-        setMessageType('success')
-        setNewPassword('')
-        setConfirmPassword('')
+        setMessage("Password updated successfully");
+        setMessageType("success");
+        setNewPassword("");
+        setConfirmPassword("");
       }
     } catch (error) {
-      setMessage('Failed to update password')
-      setMessageType('error')
+      setMessage("Failed to update password");
+      setMessageType("error");
     } finally {
-      setIsUpdating(false)
+      setIsUpdating(false);
     }
-  }
+  };
 
   const handleDeleteAccount = async () => {
     const confirmed = window.confirm(
-      'Are you sure you want to delete your account? This action cannot be undone and will permanently delete all your data including orders, favorites, and profile information.'
-    )
+      "Are you sure you want to delete your account? This action cannot be undone and will permanently delete all your data including orders, favorites, and profile information."
+    );
 
-    if (!confirmed) return
+    if (!confirmed) return;
 
-    setIsDeleting(true)
-    setMessage('')
+    setIsDeleting(true);
+    setMessage("");
 
     try {
       // Call our API endpoint to delete the account
-      const response = await fetch('/api/account/delete', {
-        method: 'DELETE',
+      const response = await fetch("/api/account/delete", {
+        method: "DELETE",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-      })
+      });
 
-      const result = await response.json()
+      const result = await response.json();
 
       if (!response.ok) {
-        throw new Error(result.error || 'Failed to delete account')
+        throw new Error(result.error || "Failed to delete account");
       }
 
-      setMessage('Account deleted successfully')
-      setMessageType('success')
-      
+      setMessage("Account deleted successfully");
+      setMessageType("success");
+
       // Redirect to home page after a short delay
       setTimeout(() => {
-        router.push('/')
-      }, 2000)
-      
+        router.push("/");
+      }, 2000);
     } catch (error) {
-      console.error('Account deletion error:', error)
-      setMessage('Failed to delete account. Please try again or contact support.')
-      setMessageType('error')
+      console.error("Account deletion error:", error);
+      setMessage(
+        "Failed to delete account. Please try again or contact support."
+      );
+      setMessageType("error");
     } finally {
-      setIsDeleting(false)
+      setIsDeleting(false);
     }
-  }
+  };
 
   const handleSignOut = async () => {
-    await supabase.auth.signOut()
-    router.push('/')
-  }
-
-
+    await supabase.auth.signOut();
+    router.push("/");
+  };
 
   if (isLoading) {
     return (
@@ -206,7 +214,7 @@ export default function AccountPage() {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -220,8 +228,18 @@ export default function AccountPage() {
 
       {/* Message Alert */}
       {message && (
-        <Alert className={`mb-6 ${messageType === 'error' ? 'border-red-200 bg-red-50' : 'border-green-200 bg-green-50'}`}>
-          <AlertDescription className={messageType === 'error' ? 'text-red-800' : 'text-green-800'}>
+        <Alert
+          className={`mb-6 ${
+            messageType === "error"
+              ? "border-red-200 bg-red-50"
+              : "border-green-200 bg-green-50"
+          }`}
+        >
+          <AlertDescription
+            className={
+              messageType === "error" ? "text-red-800" : "text-green-800"
+            }
+          >
             {message}
           </AlertDescription>
         </Alert>
@@ -262,9 +280,9 @@ export default function AccountPage() {
                       <Button size="sm" onClick={handleUpdateProfile}>
                         Save
                       </Button>
-                      <Button 
-                        size="sm" 
-                        variant="outline" 
+                      <Button
+                        size="sm"
+                        variant="outline"
                         onClick={() => setIsEditing(false)}
                       >
                         Cancel
@@ -274,7 +292,7 @@ export default function AccountPage() {
                 ) : (
                   <div>
                     <h3 className="font-semibold">
-                      {user?.user_metadata?.name || 'User'}
+                      {user?.user_metadata?.name || "User"}
                     </h3>
                     <p className="text-sm text-muted-foreground">
                       {user?.email}
@@ -293,16 +311,16 @@ export default function AccountPage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="w-full justify-start"
-                onClick={() => router.push('/orders')}
+                onClick={() => router.push("/orders")}
               >
                 <Settings className="mr-2 h-4 w-4" />
                 View Orders
               </Button>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="w-full justify-start text-destructive hover:text-destructive"
                 onClick={handleSignOut}
               >
@@ -341,23 +359,24 @@ export default function AccountPage() {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                   />
                   <Button onClick={handleChangePassword} disabled={isUpdating}>
-                    {isUpdating ? 'Updating...' : 'Update Password'}
+                    {isUpdating ? "Updating..." : "Update Password"}
                   </Button>
                 </div>
               </div>
-              
+
               {/* Delete Account */}
               <div className="space-y-4 pt-6 border-t">
                 <h3 className="font-medium text-destructive">Danger Zone</h3>
                 <p className="text-sm text-muted-foreground">
-                  Once you delete your account, there is no going back. Please be certain.
+                  Once you delete your account, there is no going back. Please
+                  be certain.
                 </p>
-                <Button 
-                  variant="destructive" 
+                <Button
+                  variant="destructive"
                   onClick={handleDeleteAccount}
                   disabled={isDeleting}
                 >
-                  {isDeleting ? 'Deleting...' : 'Delete Account'}
+                  {isDeleting ? "Deleting..." : "Delete Account"}
                 </Button>
               </div>
             </CardContent>
@@ -379,7 +398,10 @@ export default function AccountPage() {
                   <p className="text-sm text-muted-foreground mb-4">
                     Heart the games you love to save them here
                   </p>
-                  <Button className="mt-4" onClick={() => router.push('/products')}>
+                  <Button
+                    className="mt-4"
+                    onClick={() => router.push("/products")}
+                  >
                     Browse Games
                   </Button>
                 </div>
@@ -404,11 +426,9 @@ export default function AccountPage() {
                     </div>
                   ))}
                   {favorites.length > 4 && (
-                    <Link href="/favorites" className="col-span-full">
-                      <Button variant="outline" className="w-full">
-                        View All Favorites
-                      </Button>
-                    </Link>
+                    <Button onClick={() => router.push('/favorites')} variant="outline" className="w-full">
+                      View All Favorites
+                    </Button>
                   )}
                 </div>
               )}
@@ -417,5 +437,5 @@ export default function AccountPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }
