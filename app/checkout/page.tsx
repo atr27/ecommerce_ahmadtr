@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useForm } from 'react-hook-form'
+import { CartItem } from '@/types/index'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { CreditCard, MapPin, User, Phone, Mail, ExternalLink } from 'lucide-react'
@@ -77,7 +78,7 @@ export default function CheckoutPage() {
         total_amount: getTotalPrice() * 1.1, // Including tax
         shipping_address: `${data.address}, ${data.city}, ${data.postalCode}`,
         status: 'pending',
-        order_items: items.map(item => ({
+        order_items: items.map((item: CartItem) => ({
           product_id: item.product_id,
           quantity: item.quantity,
           price: item.product?.price || 0,
@@ -182,7 +183,7 @@ export default function CheckoutPage() {
               <CardContent className="space-y-4">
                 {/* Order Items */}
                 <div className="space-y-3">
-                  {items.map((item) => (
+                  {items.map((item: CartItem) => (
                     <div key={item.id} className="flex justify-between items-center">
                       <div className="flex-1">
                         <p className="font-medium">{item.product?.name}</p>
@@ -362,7 +363,7 @@ export default function CheckoutPage() {
             <CardContent className="space-y-4">
               {/* Order Items */}
               <div className="space-y-3">
-                {items.map((item) => (
+                {items.map((item: CartItem) => (
                   <div key={item.id} className="flex justify-between items-center">
                     <div className="flex-1">
                       <p className="font-medium">{item.product?.name}</p>
