@@ -1,6 +1,6 @@
 'use client'
 
-import { Product } from '@/types'
+import { Product } from '@/types/index'
 import ProductCard from './product-card'
 
 interface RelatedProductsProps {

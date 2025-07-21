@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { createSupabaseClient } from '@/lib/supabase'
-import { Product } from '@/types'
+import { Product } from '@/types/index'
 
 interface FavoritesState {
   favorites: Product[]

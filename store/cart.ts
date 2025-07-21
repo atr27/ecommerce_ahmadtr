@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { CartItem, CartStore } from '@/types'
+import { CartItem, CartStore } from '@/types/index'
 import { createSupabaseClient } from '@/lib/supabase'
 
 export const useCartStore = create<CartStore>((set, get) => ({
