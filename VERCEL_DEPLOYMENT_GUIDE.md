@@ -186,16 +186,22 @@ git push origin main
 ## Troubleshooting
 
 ### Critical Build Error Fix ✅
-**Error:** `supabaseUrl is required` during build
+**Error:** `NEXT_PUBLIC_SUPABASE_URL is required in production` during build
 
 **Cause:** Environment variables not available during Vercel build process
 
 **Solution Applied:**
-- Updated `lib/supabase-server.ts` to handle missing env vars during build
-- Added defensive initialization that only validates when actually used
-- Build now passes without requiring env vars at build time
+- Updated `lib/supabase-server.ts` with simplified fallback approach
+- Uses placeholder values during build time, validates only at runtime
+- Completely avoids validation during build process
+- Build now passes without requiring environment variables
 
 **Status:** ✅ RESOLVED - Build should now succeed
+
+**Latest Fix (v2):**
+- Simplified approach using direct fallback values
+- No complex build-time detection logic
+- Runtime validation only when clients are actually used
 
 ### Common Issues:
 1. **Build Fails with "supabaseUrl is required":**

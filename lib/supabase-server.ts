@@ -2,50 +2,15 @@ import { createClient } from '@supabase/supabase-js'
 import { createServerComponentClient } from '@supabase/auth-helpers-nextjs'
 import { cookies } from 'next/headers'
 
-// Get environment variables with fallbacks for build time
-const getSupabaseUrl = () => {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
-  if (!url) {
-    if (process.env.NODE_ENV === 'production') {
-      throw new Error('NEXT_PUBLIC_SUPABASE_URL is required in production')
-    }
-    // Return a placeholder during build time
-    return 'https://placeholder.supabase.co'
-  }
-  return url
-}
-
-const getSupabaseAnonKey = () => {
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
-  if (!key) {
-    if (process.env.NODE_ENV === 'production') {
-      throw new Error('NEXT_PUBLIC_SUPABASE_ANON_KEY is required in production')
-    }
-    // Return a placeholder during build time
-    return 'placeholder-anon-key'
-  }
-  return key
-}
-
-const getServiceRoleKey = () => {
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
-  if (!key) {
-    if (process.env.NODE_ENV === 'production') {
-      throw new Error('SUPABASE_SERVICE_ROLE_KEY is required in production')
-    }
-    // Return a placeholder during build time
-    return 'placeholder-service-role-key'
-  }
-  return key
-}
+// Safe environment variable access with build-time fallbacks
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co'
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-anon-key'
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder-service-role-key'
 
 // Server component Supabase client (for use in server components)
 export const createSupabaseServerClient = () => {
-  // Only validate environment variables when actually creating the client
-  const url = getSupabaseUrl()
-  const key = getSupabaseAnonKey()
-  
-  if (url === 'https://placeholder.supabase.co' || key === 'placeholder-anon-key') {
+  // Runtime validation only when actually creating the client
+  if (supabaseUrl === 'https://placeholder.supabase.co' || supabaseAnonKey === 'placeholder-anon-key') {
     throw new Error('Supabase environment variables are not configured')
   }
   
@@ -58,14 +23,12 @@ let _supabaseAdmin: ReturnType<typeof createClient> | null = null
 export const supabaseAdmin = (() => {
   if (_supabaseAdmin) return _supabaseAdmin
   
-  const url = getSupabaseUrl()
-  const serviceKey = getServiceRoleKey()
-  
-  if (url === 'https://placeholder.supabase.co' || serviceKey === 'placeholder-service-role-key') {
+  // Runtime validation only when actually creating the client
+  if (supabaseUrl === 'https://placeholder.supabase.co' || serviceRoleKey === 'placeholder-service-role-key') {
     throw new Error('Supabase environment variables are not configured')
   }
   
-  _supabaseAdmin = createClient(url, serviceKey, {
+  _supabaseAdmin = createClient(supabaseUrl, serviceRoleKey, {
     auth: {
       autoRefreshToken: false,
       persistSession: false
