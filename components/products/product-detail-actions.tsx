@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Heart, ShoppingCart, Minus, Plus } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { Product } from '@/types'
+import { Product } from '@/types/index'
 import { useCartStore } from '@/store/cart'
 import { createSupabaseClient } from '@/lib/supabase'
 import { useRouter } from 'next/navigation'
