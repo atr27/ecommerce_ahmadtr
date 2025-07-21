@@ -185,16 +185,45 @@ git push origin main
 
 ## Troubleshooting
 
-### Common Issues:
-1. **Build Fails:** Check environment variables are set correctly
-2. **Auth Issues:** Verify Supabase redirect URLs match your domain
-3. **Payment Issues:** Confirm Xendit webhook URL is updated
-4. **Database Issues:** Ensure Supabase RLS policies allow public access where needed
+### Critical Build Error Fix ✅
+**Error:** `supabaseUrl is required` during build
 
-### Build Logs:
+**Cause:** Environment variables not available during Vercel build process
+
+**Solution Applied:**
+- Updated `lib/supabase-server.ts` to handle missing env vars during build
+- Added defensive initialization that only validates when actually used
+- Build now passes without requiring env vars at build time
+
+**Status:** ✅ RESOLVED - Build should now succeed
+
+### Common Issues:
+1. **Build Fails with "supabaseUrl is required":**
+   - ✅ Fixed in latest code update
+   - Ensure you have the latest `lib/supabase-server.ts` file
+
+2. **Environment Variables Missing:**
+   - Double-check all required env vars are set in Vercel dashboard
+   - Ensure no typos in variable names
+   - Redeploy after adding missing variables
+
+3. **Auth Issues:** 
+   - Verify Supabase redirect URLs match your domain
+   - Check Site URL in Supabase dashboard
+
+4. **Payment Issues:** 
+   - Confirm Xendit webhook URL is updated
+   - Test with Xendit sandbox credentials first
+
+5. **Database Issues:** 
+   - Ensure Supabase RLS policies allow public access where needed
+   - Check database connection in Supabase dashboard
+
+### Build Logs Analysis:
 - Check Vercel deployment logs for specific error messages
-- Ensure all dependencies are in `package.json`
+- Look for missing dependencies in `package.json`
 - Verify environment variables are properly set
+- Check for TypeScript compilation errors
 
 ## Security Notes
 
